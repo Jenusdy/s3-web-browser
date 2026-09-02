@@ -11,6 +11,18 @@ from s3_web_browser.s3 import list_objects, parse_responses
 
 
 def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
+    @app.errorhandler(404)
+    def page_not_found(_e: Exception) -> tuple[str, int]:
+        return render_template("error.html", error="The requested page was not found."), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e: Exception) -> tuple[str, int]:
+        return render_template("error.html", error=f"Internal Server Error: {e}"), 500
+
+    @app.errorhandler(Exception)
+    def handle_exception(e: Exception) -> tuple[str, int]:
+        return render_template("error.html", error=f"An unexpected error occurred: {e}"), 500
+
     @app.route("/", methods=["GET"])
     def index() -> str:
         connections = Connection.query.all()
@@ -279,7 +291,7 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
                 download_name=f"{folder_name}.zip"
             )
             response.set_cookie("download_started", "1", max_age=120, path="/")
-            return response
+            return response  # noqa: TRY300
         except Exception as e:  # noqa: BLE001
             temp_file.close()
             return render_template("error.html", error=f"Error generating ZIP: {e}")
