@@ -1,0 +1,44 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-title">Add S3 Connection</div>
+<div class="page-subtitle">Configure a new S3 endpoint to browse.</div>
+
+<div class="form-container" style="max-width: 600px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem;">
+    <form method="POST" action="{{ url_for('new_connection') }}">
+        <div style="margin-bottom: 1rem;">
+            <label for="name" style="display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text);">Connection Name *</label>
+            <input type="text" id="name" name="name" required placeholder="e.g., BPS Object Storage" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);">
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+            <label for="endpoint_url" style="display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text);">Endpoint URL</label>
+            <input type="url" id="endpoint_url" name="endpoint_url" placeholder="e.g., https://obj.bps.go.id" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+            <label for="access_key_id" style="display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text);">AWS Access Key ID</label>
+            <input type="text" id="access_key_id" name="access_key_id" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+            <label for="secret_access_key" style="display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text);">AWS Secret Access Key</label>
+            <input type="password" id="secret_access_key" name="secret_access_key" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+            <label for="region" style="display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text);">Region</label>
+            <input type="text" id="region" name="region" value="eu-central-1" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);">
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <label for="default_bucket" style="display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text);">Default Bucket (Optional)</label>
+            <input type="text" id="default_bucket" name="default_bucket" placeholder="e.g., sisnas-dms-mssd" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);">
+            <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">If your user doesn't have permissions to list all buckets, you must specify a default bucket to connect to.</small>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" style="background: var(--accent); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 500; cursor: pointer;">Save Connection</button>
+            <a href="{{ url_for('index') }}" style="display: inline-block; padding: 0.75rem 1.5rem; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); text-decoration: none; font-weight: 500;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

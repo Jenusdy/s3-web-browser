@@ -8,7 +8,7 @@ RUN curl -sSL https://install.python-poetry.org | python -
 
 WORKDIR /usr/src/app
 
-COPY poetry.lock pyproject.toml /usr/src/app/
+COPY pyproject.toml /usr/src/app/
 
 RUN poetry install
 
@@ -22,4 +22,4 @@ USER nobody
 ENV PYTHONPATH=/usr/src/app
 EXPOSE 8000
 
-CMD ["gunicorn", "run:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "run:app"]

@@ -2,10 +2,12 @@
 
 {# ── Breadcrumb ── #}
 <nav class="breadcrumb">
-  <a href="{{ url_for('index') }}">Buckets</a>
+  <a href="{{ url_for('index') }}">Connections</a>
+  <span class="sep">/</span>
+  <a href="{{ url_for('buckets', connection_id=connection.id) }}">{{ connection.name }}</a>
   <span class="sep">/</span>
   {% if path %}
-    <a href="{{ url_for('view_bucket', bucket_name=bucket_name) }}">{{ bucket_name }}</a>
+    <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name) }}">{{ bucket_name }}</a>
     {% set parts = path.rstrip('/').split('/') %}
     {% for part in parts %}
       <span class="sep">/</span>
@@ -13,7 +15,7 @@
       {% if loop.last %}
         <span class="current">{{ part }}</span>
       {% else %}
-        <a href="{{ url_for('view_bucket', bucket_name=bucket_name, path=part_path) }}">{{ part }}</a>
+        <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name, path=part_path) }}">{{ part }}</a>
       {% endif %}
     {% endfor %}
   {% else %}
@@ -22,7 +24,7 @@
 </nav>
 
 {# ── Search ── #}
-<form class="search-bar" action="{{ url_for('search_bucket', bucket_name=bucket_name, path=path) }}">
+<form class="search-bar" action="{{ url_for('search_bucket', connection_id=connection.id, bucket_name=bucket_name, path=path) }}">
   <input
     name="search"
     value="{{ search_param }}"
@@ -36,7 +38,7 @@
     Search
   </button>
   {% if search_param %}
-  <a href="{{ url_for('view_bucket', bucket_name=bucket_name, path=path) }}" class="btn btn-ghost">Clear</a>
+  <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name, path=path) }}" class="btn btn-ghost">Clear</a>
   {% endif %}
 </form>
 {% if not path and not search_param %}
@@ -46,7 +48,7 @@
 {# ── Actions bar ── #}
 <div class="actions">
   {% if path %}
-  <a href="{{ url_for('view_bucket', bucket_name=bucket_name, path=path.rstrip('/').rsplit('/', 1)[0] + '/' if '/' in path.rstrip('/') else '') }}" class="btn btn-ghost">
+  <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name, path=path.rstrip('/').rsplit('/', 1)[0] + '/' if '/' in path.rstrip('/') else '') }}" class="btn btn-ghost">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     Up
   </a>
@@ -77,7 +79,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
       </svg>
-      <a href="{{ url_for('view_bucket', bucket_name=bucket_name, path=item.name) }}" title="{{ item.name }}">
+      <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name, path=item.name) }}" title="{{ item.name }}">
         {{ item.name.rstrip('/').rsplit('/', 1)[-1] }}/
       </a>
     </div>
@@ -89,7 +91,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
       </svg>
-      <a href="{{ url_for('download_file', bucket_name=bucket_name, path=item.name) }}" target="_blank" title="{{ item.name }}">
+      <a href="{{ url_for('download_file', connection_id=connection.id, bucket_name=bucket_name, path=item.name) }}" target="_blank" title="{{ item.name }}">
         {{ item.name.rsplit('/', 1)[-1] }}
       </a>
     </div>
@@ -100,7 +102,7 @@
         <svg class="icon-copy" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         <svg class="icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"/></svg>
       </button>
-      <a href="{{ url_for('download_file', bucket_name=bucket_name, path=item.name) }}" target="_blank" class="dl-btn" title="Download">
+      <a href="{{ url_for('download_file', connection_id=connection.id, bucket_name=bucket_name, path=item.name) }}" target="_blank" class="dl-btn" title="Download">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       </a>
     </div>
