@@ -1,8 +1,8 @@
 # S3 Web Browser
 
 [![Python version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
-![Last Commit](https://img.shields.io/github/last-commit/romanzdk/s3-web-browser)
-[![GitHub stars](https://img.shields.io/github/stars/romanzdk/s3-web-browser.svg)](https://github.com/romanzdk/s3-web-browser/stargazers)
+![Last Commit](https://img.shields.io/github/last-commit/Jenusdy/s3-web-browser)
+[![GitHub stars](https://img.shields.io/github/stars/Jenusdy/s3-web-browser.svg)](https://github.com/Jenusdy/s3-web-browser/stargazers)
 
 ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
 ![AWS S3](https://img.shields.io/badge/AWS_S3-569A31?style=for-the-badge&logo=amazon-s3&logoColor=white)
@@ -47,7 +47,7 @@ While AWS credentials are now primarily configured securely through the web UI a
 
 ```bash
 # Mount the instance directory to persist your database!
-docker run -it --rm -p 8000:8000 -v ${PWD}/instance:/usr/src/app/instance romanzdk/s3-web-browser
+docker run -it --rm -p 8000:8000 -v ${PWD}/instance:/usr/src/app/instance Jenusdy/s3-web-browser
 ```
 
 ### Docker (build locally)
@@ -83,7 +83,7 @@ docker run -it --rm -p 8000:8000 -v ${PWD}/instance:/usr/src/app/instance romanz
 
 ## Related
 
-- [S3 Commander](https://github.com/romanzdk/s3-commander) — Total Commander-style dual-pane S3 file browser with server-side move/copy.
+- [S3 Commander](https://github.com/Jenusdy/s3-commander) — Total Commander-style dual-pane S3 file browser with server-side move/copy.
 
 ## License
 
