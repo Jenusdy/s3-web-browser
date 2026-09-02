@@ -58,6 +58,25 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
         db.session.commit()
         return redirect(url_for("index"))
 
+    @app.route("/connections/<int:id>/edit", methods=["GET", "POST"])
+    def edit_connection(id: int) -> str | Response:  # noqa: A002
+        conn = Connection.query.get_or_404(id)
+        if request.method == "POST":
+            conn.name = request.form.get("name")
+            conn.endpoint_url = request.form.get("endpoint_url") or None
+            conn.access_key_id = request.form.get("access_key_id") or None
+            
+            new_secret = request.form.get("secret_access_key")
+            if new_secret:
+                conn.secret_access_key = new_secret
+                
+            conn.region = request.form.get("region", "eu-central-1")
+            conn.default_bucket = request.form.get("default_bucket") or None
+            
+            db.session.commit()
+            return redirect(url_for("index"))
+        return render_template("connection_form.html", connection=conn)
+
     @app.route("/c/<int:connection_id>/buckets")
     def buckets(connection_id: int) -> str | Response:
         conn = Connection.query.get_or_404(connection_id)
