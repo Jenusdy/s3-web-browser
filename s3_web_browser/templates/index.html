@@ -9,8 +9,8 @@
 
 <div class="page-title" style="display: flex; justify-content: space-between; align-items: center;">
     <span>S3 Connections</span>
-    <a href="{{ url_for('new_connection') }}" style="font-size: 1rem; background: var(--accent); color: white; padding: 0.5rem 1rem; border-radius: var(--radius); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <a href="{{ url_for('new_connection') }}" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
@@ -23,20 +23,20 @@
 {% if conn_list %}
 <div class="bucket-grid">
   {% for conn in conn_list %}
-  <a href="{{ url_for('buckets', connection_id=conn.id) }}" class="bucket-card" style="display: flex; flex-direction: column; position: relative;">
-    <div style="display: flex; align-items: center; margin-bottom: 0.5rem; color: var(--text);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
+  <a href="{{ url_for('buckets', connection_id=conn.id) }}" class="bucket-card" style="align-items: flex-start; flex-direction: column; gap: 8px;">
+    <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
         </svg>
-        <span title="{{ conn.name }}" style="font-weight: 500;">{{ conn.name }}</span>
+        <span title="{{ conn.name }}" style="font-size: 16px; font-weight: 500;">{{ conn.name }}</span>
     </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+    <span style="font-size: 14px; color: var(--md-sys-color-on-surface-variant); padding-left: 36px;">
         {% if conn.default_bucket %}Bucket: {{ conn.default_bucket }}{% else %}All Buckets{% endif %}
     </span>
     
-    <form method="POST" action="{{ url_for('delete_connection', id=conn.id) }}" style="position: absolute; bottom: 0.5rem; right: 0.5rem;" onclick="event.stopPropagation(); event.preventDefault(); if(confirm('Delete connection?')) this.submit();">
-        <button type="button" style="background: none; border: none; cursor: pointer; color: #ef4444; padding: 0.25rem;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+    <form method="POST" action="{{ url_for('delete_connection', id=conn.id) }}" style="position: absolute; top: 16px; right: 16px;" onclick="event.stopPropagation(); event.preventDefault(); if(confirm('Delete connection?')) this.submit();">
+        <button type="button" class="dl-btn delete-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
         </button>
     </form>
   </a>

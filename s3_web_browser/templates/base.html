@@ -154,13 +154,13 @@
     .breadcrumb .sep { color: var(--md-sys-color-outline); padding: 0 4px; }
     .breadcrumb .current { color: var(--md-sys-color-on-surface); font-weight: 500; padding: 4px 8px; }
 
-    /* ── Search (M3 Outlined Field) ── */
+    /* ── Forms & Search (M3 Outlined Field) ── */
     .search-bar {
       display: flex;
       gap: 12px;
       margin-bottom: 24px;
     }
-    .search-bar input {
+    .input-field, .search-bar input {
       flex: 1;
       height: 56px;
       padding: 0 16px;
@@ -171,12 +171,21 @@
       background: transparent;
       outline: none;
       transition: border-color .15s, box-shadow .15s;
+      width: 100%;
     }
-    .search-bar input:focus {
+    .input-field:focus, .search-bar input:focus {
       border: 2px solid var(--md-sys-color-primary);
       padding: 0 15px; /* offset 2px border */
     }
-    .search-bar input::placeholder { color: var(--md-sys-color-on-surface-variant); }
+    .input-field::placeholder, .search-bar input::placeholder { color: var(--md-sys-color-on-surface-variant); }
+    
+    .form-label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--md-sys-color-on-surface);
+      font-size: 14px;
+    }
     
     /* ── Buttons (M3 Filled, Tonal, Text) ── */
     .btn {
@@ -361,7 +370,7 @@
       margin-top: 16px;
     }
     .bucket-card {
-      background: var(--md-sys-color-surface-container-low);
+      background: var(--md-sys-color-surface-container);
       border-radius: var(--md-sys-shape-corner-medium);
       padding: 24px;
       text-decoration: none;
