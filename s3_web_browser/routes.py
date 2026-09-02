@@ -1,3 +1,5 @@
+import typing
+
 import boto3
 import botocore
 from flask import Flask, Response, redirect, render_template, request, url_for
@@ -182,9 +184,20 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
     def download_file(connection_id: int, bucket_name: str, path: str) -> Response:
         conn = Connection.query.get_or_404(connection_id)
         s3_client = boto3.client("s3", **conn.to_boto3_kwargs())
-        url = s3_client.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": bucket_name, "Key": path},
-            ExpiresIn=3600,
-        )
-        return redirect(url)
+
+        try:
+            s3_object = s3_client.get_object(Bucket=bucket_name, Key=path)
+
+            def generate() -> typing.Iterator[bytes]:
+                yield from s3_object["Body"].iter_chunks(chunk_size=4096)
+
+            return Response(
+                generate(),
+                mimetype=s3_object.get("ContentType", "application/octet-stream"),
+                headers={
+                    "Content-Disposition": f"attachment; filename={path.rsplit('/', maxsplit=1)[-1]}",
+                    "Content-Length": str(s3_object["ContentLength"])
+                }
+            )
+        except Exception as e:  # noqa: BLE001
+            return render_template("error.html", error=f"Error downloading file: {e}")
