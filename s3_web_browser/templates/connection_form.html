@@ -6,12 +6,12 @@
     <form method="POST" action="{% if connection %}{{ url_for('edit_connection', id=connection.id) }}{% else %}{{ url_for('new_connection') }}{% endif %}">
         <div style="margin-bottom: 24px;">
             <label for="name" class="form-label">Connection Name *</label>
-            <input type="text" id="name" name="name" class="input-field" required placeholder="e.g., BPS Object Storage" value="{% if connection %}{{ connection.name }}{% endif %}">
+            <input type="text" id="name" name="name" class="input-field" required placeholder="e.g., Production S3" value="{% if connection %}{{ connection.name }}{% endif %}">
         </div>
         
         <div style="margin-bottom: 24px;">
             <label for="endpoint_url" class="form-label">Endpoint URL</label>
-            <input type="url" id="endpoint_url" name="endpoint_url" class="input-field" placeholder="e.g., https://obj.bps.go.id" value="{% if connection and connection.endpoint_url %}{{ connection.endpoint_url }}{% endif %}">
+            <input type="url" id="endpoint_url" name="endpoint_url" class="input-field" placeholder="e.g., https://s3.amazonaws.com" value="{% if connection and connection.endpoint_url %}{{ connection.endpoint_url }}{% endif %}">
         </div>
 
         <div style="margin-bottom: 24px;">
@@ -31,7 +31,7 @@
 
         <div style="margin-bottom: 32px;">
             <label for="default_bucket" class="form-label">Default Bucket (Optional)</label>
-            <input type="text" id="default_bucket" name="default_bucket" class="input-field" placeholder="e.g., sisnas-dms-mssd" value="{% if connection and connection.default_bucket %}{{ connection.default_bucket }}{% endif %}">
+            <input type="text" id="default_bucket" name="default_bucket" class="input-field" placeholder="e.g., my-production-bucket" value="{% if connection and connection.default_bucket %}{{ connection.default_bucket }}{% endif %}">
             <small style="color: var(--md-sys-color-on-surface-variant); display: block; margin-top: 8px;">If your user doesn't have permissions to list all buckets, you must specify a default bucket to connect to.</small>
         </div>
 
