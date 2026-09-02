@@ -230,11 +230,13 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
         try:
             paginator = s3_client.get_paginator("list_objects_v2")
             
-            # Calculate bucket size
-            bucket_size = 0
-            for page in paginator.paginate(Bucket=bucket_name):
-                if "Contents" in page:
-                    bucket_size += sum(item["Size"] for item in page["Contents"] if not item["Key"].endswith("/"))
+            # Calculate bucket size only if we are at the root
+            bucket_size = None
+            if not path:
+                bucket_size = 0
+                for page in paginator.paginate(Bucket=bucket_name):
+                    if "Contents" in page:
+                        bucket_size += sum(item["Size"] for item in page["Contents"] if not item["Key"].endswith("/"))
             
             # Calculate folder size if path is provided
             folder_size = None
@@ -246,10 +248,10 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
                     if "Contents" in page:
                         folder_size += sum(item["Size"] for item in page["Contents"] if not item["Key"].endswith("/"))
                         
-            response_data = {
-                "bucket_size_human": humanize.naturalsize(bucket_size),
-                "bucket_size_bytes": bucket_size
-            }
+            response_data = {}
+            if bucket_size is not None:
+                response_data["bucket_size_human"] = humanize.naturalsize(bucket_size)
+                response_data["bucket_size_bytes"] = bucket_size
             if folder_size is not None:
                 response_data["folder_size_human"] = humanize.naturalsize(folder_size)
                 response_data["folder_size_bytes"] = folder_size

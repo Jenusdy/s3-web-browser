@@ -36,12 +36,13 @@
   <div class="size-indicators" style="font-size: 13px; color: var(--md-sys-color-on-surface-variant); display: flex; gap: 16px; background: var(--md-sys-color-surface-container); padding: 8px 16px; border-radius: 20px;">
     <a id="calculate-sizes-btn" href="javascript:void(0)" style="font-weight: 500; color: var(--md-sys-color-primary); text-decoration: none; display: flex; align-items: center; gap: 4px;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-      Calculate Sizes
+      {% if path %}Calculate Folder Size{% else %}Calculate Bucket Size{% endif %}
     </a>
     <div id="size-results" style="display: none; gap: 16px;">
-      <div>Bucket Size: <span id="bucket-size-indicator" style="font-weight: 500; color: var(--md-sys-color-on-surface);">Calculating...</span></div>
       {% if path %}
       <div>Folder Size: <span id="folder-size-indicator" style="font-weight: 500; color: var(--md-sys-color-on-surface);">Calculating...</span></div>
+      {% else %}
+      <div>Bucket Size: <span id="bucket-size-indicator" style="font-weight: 500; color: var(--md-sys-color-on-surface);">Calculating...</span></div>
       {% endif %}
     </div>
   </div>
@@ -333,21 +334,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(response => response.json())
                 .then(data => {
                     if(data.error) {
-                        document.getElementById("bucket-size-indicator").textContent = "Error";
+                        if(document.getElementById("bucket-size-indicator")) {
+                            document.getElementById("bucket-size-indicator").textContent = "Error";
+                        }
                         if(document.getElementById("folder-size-indicator")) {
                             document.getElementById("folder-size-indicator").textContent = "Error";
                         }
                         console.error(data.error);
                         return;
                     }
-                    document.getElementById("bucket-size-indicator").textContent = data.bucket_size_human;
+                    if(data.bucket_size_human && document.getElementById("bucket-size-indicator")) {
+                        document.getElementById("bucket-size-indicator").textContent = data.bucket_size_human;
+                    }
                     if(data.folder_size_human && document.getElementById("folder-size-indicator")) {
                         document.getElementById("folder-size-indicator").textContent = data.folder_size_human;
                     }
                 })
                 .catch(err => {
                     console.error(err);
-                    document.getElementById("bucket-size-indicator").textContent = "Error";
+                    if(document.getElementById("bucket-size-indicator")) {
+                        document.getElementById("bucket-size-indicator").textContent = "Error";
+                    }
                     if(document.getElementById("folder-size-indicator")) {
                         document.getElementById("folder-size-indicator").textContent = "Error";
                     }
