@@ -20,15 +20,17 @@ S3 Web Browser is a Flask-based web application that allows users to browse AWS 
 
 ## Features
 
-- **Multiple Connections Manager**: Store and manage multiple S3 credentials securely in a local database.
+- **Multiple Connections**: Add and manage multiple S3 endpoints securely through the web UI (saved in a local SQLite database).
 - **List S3 Buckets**: View all S3 buckets available to a specific connection in a card-based grid layout.
 - **Default Buckets**: Configure a default bucket to bypass global listing for environments with restricted permissions.
 - **Browse Bucket Contents**: Navigate through folders and files with breadcrumb navigation.
+- **Upload Files**: Easily upload multiple files directly into your S3 buckets and folders via drag-and-drop or file selection.
+- **Download Files & Folders**: Download individual objects securely via temporary presigned URLs, or download entire folders as ZIP archives on the fly.
+- **Dynamic Folder Sizes**: Asynchronously calculate total folder sizes with blazing fast parallel execution without blocking the UI.
 - **Search Bucket Contents**: Recursively search for files and folders within any bucket or subdirectory (case-insensitive).
-- **Generate Presigned URLs**: Securely download S3 objects via temporary 1-hour presigned URLs. Maximum compatibility with S3v4 signatures and path-style addressing for Ceph/MinIO support.
 - **Pagination**: Browse large buckets efficiently with configurable page sizes.
 - **Copy S3 Paths**: One-click copy of S3 paths (`s3://bucket/key`) to clipboard.
-- **Responsive UI**: Modern interface with loading indicators and smooth navigation.
+- **Modern Material Design 3 UI**: Enjoy a beautiful, highly responsive user interface with dynamic animations and seamless Light/Dark mode support.
 
 ## Configuration
 
