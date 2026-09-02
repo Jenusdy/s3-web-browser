@@ -60,15 +60,11 @@ docker run -it --rm -p 8000:8000 -v ${PWD}/instance:/usr/src/app/instance Jenusd
 ## Development
 
 1. Install dependencies: `poetry install`
-1. Export AWS credentials:
-   ```bash
-   export AWS_ACCESS_KEY_ID="your_access_key_id"
-   export AWS_SECRET_ACCESS_KEY="your_secret_access_key"
-   ```
-1. Run code quality checks: `make cq`
-1. Run tests: `make test`
-1. Start the app: `poetry run python run.py`
-1. Open http://127.0.0.1:8000/
+2. Run code quality checks: `make cq`
+3. Run tests: `make test`
+4. Start the app: `poetry run python run.py`
+5. Open http://127.0.0.1:8000/
+6. Click "+ Create your first connection" to add your S3 credentials via the UI.
 
 ### Makefile targets
 
