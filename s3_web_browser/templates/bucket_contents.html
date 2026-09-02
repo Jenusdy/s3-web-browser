@@ -1,5 +1,14 @@
 {% extends "base.html" %}{% block content %}
 
+{# ── Drop Overlay ── #}
+<div id="drop-overlay" style="display: none; position: fixed; inset: 0; background: rgba(37,99,235,0.1); backdrop-filter: blur(2px); z-index: 9999; border: 4px dashed var(--accent); align-items: center; justify-content: center;">
+  <div style="background: var(--surface); padding: 32px 48px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow);">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <h2 style="font-size: 20px; color: var(--text); margin-bottom: 8px;">Drop files to upload</h2>
+    <p style="color: var(--text-muted);">Files will be uploaded to the current folder.</p>
+  </div>
+</div>
+
 {# ── Breadcrumb ── #}
 <nav class="breadcrumb">
   <a href="{{ url_for('index') }}">Connections</a>
@@ -47,6 +56,12 @@
 
 {# ── Actions bar ── #}
 <div class="actions">
+  <button type="button" class="btn btn-primary" onclick="document.getElementById('file-upload').click()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Upload
+  </button>
+  <input type="file" id="file-upload" style="display: none" multiple>
+  
   {% if path %}
   <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name, path=path.rstrip('/').rsplit('/', 1)[0] + '/' if '/' in path.rstrip('/') else '') }}" class="btn btn-ghost">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -147,5 +162,83 @@
   {% endif %}
 </nav>
 {% endif %}
+
+{% endif %}
+
+<script>
+  const dropOverlay = document.getElementById('drop-overlay');
+  const fileInput = document.getElementById('file-upload');
+  
+  let dragCounter = 0;
+  
+  // Prevent default drag behaviors
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    document.body.addEventListener(eventName, e => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
+  
+  document.body.addEventListener('dragenter', e => {
+    dragCounter++;
+    dropOverlay.style.display = 'flex';
+  }, false);
+  
+  document.body.addEventListener('dragleave', e => {
+    dragCounter--;
+    if (dragCounter === 0) {
+      dropOverlay.style.display = 'none';
+    }
+  }, false);
+  
+  document.body.addEventListener('drop', e => {
+    dragCounter = 0;
+    dropOverlay.style.display = 'none';
+    handleFiles(e.dataTransfer.files);
+  }, false);
+  
+  fileInput.addEventListener('change', function() {
+    handleFiles(this.files);
+  });
+  
+  function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    uploadNextFile([...files]);
+  }
+  
+  function uploadNextFile(files) {
+    if (files.length === 0) {
+      window.location.reload();
+      return;
+    }
+    
+    const file = files.shift();
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    {% if path %}
+    const uploadUrl = "{{ url_for('upload_file', connection_id=connection.id, bucket_name=bucket_name, path=path) }}";
+    {% else %}
+    const uploadUrl = "{{ url_for('upload_file', connection_id=connection.id, bucket_name=bucket_name) }}";
+    {% endif %}
+    
+    if (typeof showLoading === 'function') {
+      showLoading(`Uploading ${file.name}...`);
+    }
+    
+    fetch(uploadUrl, {
+      method: 'POST',
+      body: formData
+    }).then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.text();
+    }).then(() => {
+      uploadNextFile(files);
+    }).catch(err => {
+      alert(`Failed to upload ${file.name}: ${err.message}`);
+      uploadNextFile(files);
+    });
+  }
+</script>
 
 {% endblock %}

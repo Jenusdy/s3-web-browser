@@ -201,3 +201,30 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             )
         except Exception as e:  # noqa: BLE001
             return render_template("error.html", error=f"Error downloading file: {e}")
+
+    @app.route("/c/<int:connection_id>/upload/buckets/<bucket_name>", methods=["POST"])
+    @app.route("/c/<int:connection_id>/upload/buckets/<bucket_name>/<path:path>", methods=["POST"])
+    def upload_file(connection_id: int, bucket_name: str, path: str = "") -> Response:
+        if "file" not in request.files:
+            return Response("No file part", status=400)
+
+        file = request.files["file"]
+        if not file or file.filename == "":
+            return Response("No selected file", status=400)
+
+        conn = Connection.query.get_or_404(connection_id)
+        s3_client = boto3.client("s3", **conn.to_boto3_kwargs())
+
+        try:
+            filename = file.filename
+            if path:
+                if not path.endswith("/"):
+                    path = path + "/"
+                object_key = f"{path}{filename}"
+            else:
+                object_key = filename
+
+            s3_client.upload_fileobj(file, bucket_name, object_key)
+            return Response("Upload successful", status=200)
+        except Exception as e:  # noqa: BLE001
+            return Response(f"Upload failed: {e}", status=500)
