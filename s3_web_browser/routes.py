@@ -91,11 +91,6 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
         try:
             s3 = boto3.resource("s3", **conn.to_boto3_kwargs())
             all_buckets = list(s3.buckets.all())
-            
-            if all_buckets:
-                # Automatically redirect to the first bucket
-                return redirect(url_for("view_bucket", connection_id=connection_id, bucket_name=all_buckets[0].name))
-                
             return render_template("buckets.html", buckets=all_buckets, connection=conn)
         except botocore.exceptions.ClientError as e:
             if e.response["Error"]["Code"] == "AccessDenied":
