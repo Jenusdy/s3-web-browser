@@ -1,4 +1,6 @@
+import contextlib
 import os
+from pathlib import Path
 
 from flask import Flask
 
@@ -11,10 +13,8 @@ def create_app(config_class: str = "config.Config") -> Flask:
     app.config.from_object(config_class)
 
     # Ensure the instance folder exists for fresh installs
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    with contextlib.suppress(OSError):
+        Path(app.instance_path).mkdir(parents=True)
 
     db.init_app(app)
     with app.app_context():

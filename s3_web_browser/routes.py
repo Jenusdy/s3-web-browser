@@ -1,10 +1,12 @@
 import tempfile
 import typing
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import boto3
 import botocore
-from flask import Flask, Response, redirect, render_template, request, send_file, url_for
+import humanize
+from flask import Flask, Response, jsonify, redirect, render_template, request, send_file, url_for
 
 from s3_web_browser.models import Connection, db
 from s3_web_browser.s3 import list_objects, parse_responses
@@ -35,10 +37,10 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             endpoint_url = request.form.get("endpoint_url")
             access_key_id = request.form.get("access_key_id")
             secret_access_key = request.form.get("secret_access_key")
-            
+
             region_input = request.form.get("region")
             region = region_input.strip() if region_input else "eu-central-1"
-            
+
             default_bucket = request.form.get("default_bucket")
 
             conn = Connection(
@@ -68,16 +70,16 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             conn.name = request.form.get("name")
             conn.endpoint_url = request.form.get("endpoint_url") or None
             conn.access_key_id = request.form.get("access_key_id") or None
-            
+
             new_secret = request.form.get("secret_access_key")
             if new_secret:
                 conn.secret_access_key = new_secret
-                
+
             region_input = request.form.get("region")
             conn.region = region_input.strip() if region_input else "eu-central-1"
-            
+
             conn.default_bucket = request.form.get("default_bucket") or None
-            
+
             db.session.commit()
             return redirect(url_for("index"))
         return render_template("connection_form.html", connection=conn)
@@ -220,16 +222,12 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
 
     @app.route("/c/<int:connection_id>/size/buckets/<bucket_name>", defaults={"path": ""})
     @app.route("/c/<int:connection_id>/size/buckets/<bucket_name>/<path:path>")
-    def get_bucket_size(connection_id: int, bucket_name: str, path: str) -> Response:
+    def get_bucket_size(connection_id: int, bucket_name: str, path: str) -> Response:  # noqa: C901
         conn = Connection.query.get_or_404(connection_id)
         s3_client = boto3.client("s3", **conn.to_boto3_kwargs())
-        
-        import humanize
-        from flask import jsonify
-        from concurrent.futures import ThreadPoolExecutor, as_completed
 
         def _get_prefix_size(prefix: str) -> int:
-            """Helper to calculate size of a specific prefix"""
+            """Calculate the size of a specific prefix."""
             paginator = s3_client.get_paginator("list_objects_v2")
             size = 0
             for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
@@ -242,32 +240,32 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             bucket_size = None
             if not path:
                 bucket_size = _get_prefix_size("")
-            
+
             # Calculate folder size using parallel execution
             folder_size = None
             if path:
                 if not path.endswith("/"):
                     path += "/"
-                
+
                 folder_size = 0
-                
+
                 # First, get immediate contents (files and subfolders)
                 response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=path, Delimiter="/")
-                
+
                 # Sum up files that sit directly at this path root
                 if "Contents" in response:
                     folder_size += sum(item["Size"] for item in response["Contents"] if not item["Key"].endswith("/"))
-                
+
                 # Collect subfolders
                 subfolders = [p["Prefix"] for p in response.get("CommonPrefixes", [])]
-                
+
                 # Use a ThreadPoolExecutor to process subfolders concurrently
                 if subfolders:
                     with ThreadPoolExecutor(max_workers=10) as executor:
                         futures = [executor.submit(_get_prefix_size, subfolder) for subfolder in subfolders]
                         for future in as_completed(futures):
                             folder_size += future.result()
-                            
+
             response_data = {}
             if bucket_size is not None:
                 response_data["bucket_size_human"] = humanize.naturalsize(bucket_size)
@@ -275,9 +273,9 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             if folder_size is not None:
                 response_data["folder_size_human"] = humanize.naturalsize(folder_size)
                 response_data["folder_size_bytes"] = folder_size
-                
+
             return jsonify(response_data)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             return jsonify({"error": str(e)}), 500
 
     @app.route("/c/<int:connection_id>/download/buckets/<bucket_name>/<path:path>")

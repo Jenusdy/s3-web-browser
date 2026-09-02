@@ -1,5 +1,4 @@
 import os
-from typing import ClassVar
 
 
 class Config:  # noqa: D101
