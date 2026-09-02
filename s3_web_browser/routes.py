@@ -226,28 +226,48 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
         
         import humanize
         from flask import jsonify
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        def _get_prefix_size(prefix: str) -> int:
+            """Helper to calculate size of a specific prefix"""
+            paginator = s3_client.get_paginator("list_objects_v2")
+            size = 0
+            for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
+                if "Contents" in page:
+                    size += sum(item["Size"] for item in page["Contents"] if not item["Key"].endswith("/"))
+            return size
 
         try:
-            paginator = s3_client.get_paginator("list_objects_v2")
-            
             # Calculate bucket size only if we are at the root
             bucket_size = None
             if not path:
-                bucket_size = 0
-                for page in paginator.paginate(Bucket=bucket_name):
-                    if "Contents" in page:
-                        bucket_size += sum(item["Size"] for item in page["Contents"] if not item["Key"].endswith("/"))
+                bucket_size = _get_prefix_size("")
             
-            # Calculate folder size if path is provided
+            # Calculate folder size using parallel execution
             folder_size = None
             if path:
                 if not path.endswith("/"):
                     path += "/"
+                
                 folder_size = 0
-                for page in paginator.paginate(Bucket=bucket_name, Prefix=path):
-                    if "Contents" in page:
-                        folder_size += sum(item["Size"] for item in page["Contents"] if not item["Key"].endswith("/"))
-                        
+                
+                # First, get immediate contents (files and subfolders)
+                response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=path, Delimiter="/")
+                
+                # Sum up files that sit directly at this path root
+                if "Contents" in response:
+                    folder_size += sum(item["Size"] for item in response["Contents"] if not item["Key"].endswith("/"))
+                
+                # Collect subfolders
+                subfolders = [p["Prefix"] for p in response.get("CommonPrefixes", [])]
+                
+                # Use a ThreadPoolExecutor to process subfolders concurrently
+                if subfolders:
+                    with ThreadPoolExecutor(max_workers=10) as executor:
+                        futures = [executor.submit(_get_prefix_size, subfolder) for subfolder in subfolders]
+                        for future in as_completed(futures):
+                            folder_size += future.result()
+                            
             response_data = {}
             if bucket_size is not None:
                 response_data["bucket_size_human"] = humanize.naturalsize(bucket_size)
