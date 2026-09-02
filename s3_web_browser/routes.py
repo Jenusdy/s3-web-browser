@@ -35,7 +35,10 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             endpoint_url = request.form.get("endpoint_url")
             access_key_id = request.form.get("access_key_id")
             secret_access_key = request.form.get("secret_access_key")
-            region = request.form.get("region", "eu-central-1")
+            
+            region_input = request.form.get("region")
+            region = region_input.strip() if region_input else "eu-central-1"
+            
             default_bucket = request.form.get("default_bucket")
 
             conn = Connection(
@@ -70,7 +73,9 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             if new_secret:
                 conn.secret_access_key = new_secret
                 
-            conn.region = request.form.get("region", "eu-central-1")
+            region_input = request.form.get("region")
+            conn.region = region_input.strip() if region_input else "eu-central-1"
+            
             conn.default_bucket = request.form.get("default_bucket") or None
             
             db.session.commit()
