@@ -16,6 +16,8 @@ S3 Web Browser is a Flask-based web application that allows users to browse AWS 
 
 ![S3 web browser page preview](docs/image-2.png)
 
+![S3 web browser page preview](docs/image-3.png)
+
 ## Features
 
 - **Multiple Connections Manager**: Store and manage multiple S3 credentials securely in a local database.
