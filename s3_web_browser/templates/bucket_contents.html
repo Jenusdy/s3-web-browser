@@ -9,28 +9,37 @@
   </div>
 </div>
 
-<nav class="breadcrumb" style="margin-bottom: 24px;">
-  <a href="{{ url_for('buckets', connection_id=connection.id) }}" style="display:flex; align-items:center; gap:4px; margin-right: 8px;" title="Back to Buckets">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-    Buckets
-  </a>
-  <span class="sep">/</span>
-  {% if path %}
-    <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name) }}">{{ bucket_name }}</a>
-    {% set parts = path.rstrip('/').split('/') %}
-    {% for part in parts %}
-      <span class="sep">/</span>
-      {% set part_path = parts[:loop.index] | join('/') + '/' %}
-      {% if loop.last %}
-        <span class="current">{{ part }}</span>
-      {% else %}
-        <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name, path=part_path) }}">{{ part }}</a>
-      {% endif %}
-    {% endfor %}
-  {% else %}
-    <span class="current">{{ bucket_name }}</span>
-  {% endif %}
-</nav>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+  <nav class="breadcrumb" style="margin-bottom: 0;">
+    <a href="{{ url_for('buckets', connection_id=connection.id) }}" style="display:flex; align-items:center; gap:4px; margin-right: 8px;" title="Back to Buckets">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      Buckets
+    </a>
+    <span class="sep">/</span>
+    {% if path %}
+      <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name) }}">{{ bucket_name }}</a>
+      {% set parts = path.rstrip('/').split('/') %}
+      {% for part in parts %}
+        <span class="sep">/</span>
+        {% set part_path = parts[:loop.index] | join('/') + '/' %}
+        {% if loop.last %}
+          <span class="current">{{ part }}</span>
+        {% else %}
+          <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name, path=part_path) }}">{{ part }}</a>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <span class="current">{{ bucket_name }}</span>
+    {% endif %}
+  </nav>
+
+  <div class="size-indicators" style="font-size: 13px; color: var(--md-sys-color-on-surface-variant); display: flex; gap: 16px; background: var(--md-sys-color-surface-container); padding: 8px 16px; border-radius: 20px;">
+    <div>Bucket Size: <span id="bucket-size-indicator" style="font-weight: 500; color: var(--md-sys-color-on-surface);">Calculating...</span></div>
+    {% if path %}
+    <div>Folder Size: <span id="folder-size-indicator" style="font-weight: 500; color: var(--md-sys-color-on-surface);">Calculating...</span></div>
+    {% endif %}
+  </div>
+</div>
 
 {# ── Search ── #}
 <form class="search-bar" action="{{ url_for('search_bucket', connection_id=connection.id, bucket_name=bucket_name, path=path) }}">
@@ -301,6 +310,35 @@
         }
     }, 500);
   }
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const sizeUrl = "{{ url_for('get_bucket_size', connection_id=connection.id, bucket_name=bucket_name, path=path) }}";
+    fetch(sizeUrl)
+        .then(response => response.json())
+        .then(data => {
+            if(data.error) {
+                document.getElementById("bucket-size-indicator").textContent = "Error";
+                if(document.getElementById("folder-size-indicator")) {
+                    document.getElementById("folder-size-indicator").textContent = "Error";
+                }
+                console.error(data.error);
+                return;
+            }
+            document.getElementById("bucket-size-indicator").textContent = data.bucket_size_human;
+            if(data.folder_size_human && document.getElementById("folder-size-indicator")) {
+                document.getElementById("folder-size-indicator").textContent = data.folder_size_human;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("bucket-size-indicator").textContent = "Error";
+            if(document.getElementById("folder-size-indicator")) {
+                document.getElementById("folder-size-indicator").textContent = "Error";
+            }
+        });
+});
 </script>
 
 {% endblock %}

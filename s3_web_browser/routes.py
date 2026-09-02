@@ -218,6 +218,46 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
                 case _:
                     return render_template("error.html", error=f"An unknown error occurred: {e}")
 
+    @app.route("/c/<int:connection_id>/size/buckets/<bucket_name>", defaults={"path": ""})
+    @app.route("/c/<int:connection_id>/size/buckets/<bucket_name>/<path:path>")
+    def get_bucket_size(connection_id: int, bucket_name: str, path: str) -> Response:
+        conn = Connection.query.get_or_404(connection_id)
+        s3_client = boto3.client("s3", **conn.to_boto3_kwargs())
+        
+        import humanize
+        from flask import jsonify
+
+        try:
+            paginator = s3_client.get_paginator("list_objects_v2")
+            
+            # Calculate bucket size
+            bucket_size = 0
+            for page in paginator.paginate(Bucket=bucket_name):
+                if "Contents" in page:
+                    bucket_size += sum(item["Size"] for item in page["Contents"] if not item["Key"].endswith("/"))
+            
+            # Calculate folder size if path is provided
+            folder_size = None
+            if path:
+                if not path.endswith("/"):
+                    path += "/"
+                folder_size = 0
+                for page in paginator.paginate(Bucket=bucket_name, Prefix=path):
+                    if "Contents" in page:
+                        folder_size += sum(item["Size"] for item in page["Contents"] if not item["Key"].endswith("/"))
+                        
+            response_data = {
+                "bucket_size_human": humanize.naturalsize(bucket_size),
+                "bucket_size_bytes": bucket_size
+            }
+            if folder_size is not None:
+                response_data["folder_size_human"] = humanize.naturalsize(folder_size)
+                response_data["folder_size_bytes"] = folder_size
+                
+            return jsonify(response_data)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
     @app.route("/c/<int:connection_id>/download/buckets/<bucket_name>/<path:path>")
     def download_file(connection_id: int, bucket_name: str, path: str) -> Response:
         conn = Connection.query.get_or_404(connection_id)
