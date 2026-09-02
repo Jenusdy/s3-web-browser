@@ -1,8 +1,10 @@
+import tempfile
 import typing
+import zipfile
 
 import boto3
 import botocore
-from flask import Flask, Response, redirect, render_template, request, url_for
+from flask import Flask, Response, redirect, render_template, request, send_file, url_for
 
 from s3_web_browser.models import Connection, db
 from s3_web_browser.s3 import list_objects, parse_responses
@@ -239,3 +241,43 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             return Response("Deleted", status=200)
         except Exception as e:  # noqa: BLE001
             return Response(f"Failed to delete: {e}", status=500)
+
+    @app.route("/c/<int:connection_id>/download-zip/buckets/<bucket_name>/<path:path>")
+    def download_zip(connection_id: int, bucket_name: str, path: str) -> Response:
+        conn = Connection.query.get_or_404(connection_id)
+        s3_client = boto3.client("s3", **conn.to_boto3_kwargs())
+
+        if not path.endswith("/"):
+            path += "/"
+
+        temp_file = tempfile.NamedTemporaryFile(suffix=".zip")  # noqa: SIM115
+
+        try:
+            with zipfile.ZipFile(temp_file, "w", zipfile.ZIP_DEFLATED) as zf:
+                paginator = s3_client.get_paginator("list_objects_v2")
+                for page in paginator.paginate(Bucket=bucket_name, Prefix=path):
+                    for obj in page.get("Contents", []):
+                        key = obj["Key"]
+                        if key.endswith("/"):
+                            continue
+
+                        s3_object = s3_client.get_object(Bucket=bucket_name, Key=key)
+                        zip_path = key[len(path):] if key.startswith(path) else key
+                        if not zip_path:
+                            zip_path = key.split("/")[-1]
+
+                        with zf.open(zip_path, "w") as f:
+                            for chunk in s3_object["Body"].iter_chunks(chunk_size=65536):
+                                f.write(chunk)
+
+            temp_file.seek(0)
+            folder_name = path.rstrip("/").split("/")[-1]
+            return send_file(
+                temp_file,
+                mimetype="application/zip",
+                as_attachment=True,
+                download_name=f"{folder_name}.zip"
+            )
+        except Exception as e:  # noqa: BLE001
+            temp_file.close()
+            return render_template("error.html", error=f"Error generating ZIP: {e}")

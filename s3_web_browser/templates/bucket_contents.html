@@ -100,7 +100,11 @@
     </div>
     <div class="file-size">—</div>
     <div class="file-date">—</div>
-    <div class="file-action"></div>
+    <div class="file-action">
+      <button class="dl-btn" title="Download folder as ZIP" onclick="downloadFolderZip('{{ connection.id }}', '{{ bucket_name }}', '{{ item.name }}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+    </div>
     {% else %}
     <div class="file-name">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -269,6 +273,20 @@
         });
       }
     });
+  }
+  
+  function downloadFolderZip(connId, bucketName, path) {
+    const folderName = path.replace(/\/$/, '').split('/').pop();
+    
+    Swal.fire({
+      title: 'Preparing Download',
+      text: `Compressing '${folderName}' into a ZIP file. This will download automatically when ready.`,
+      icon: 'info',
+      timer: 4000,
+      showConfirmButton: false
+    });
+    
+    window.location.href = `/c/${connId}/download-zip/buckets/${bucketName}/${path}`;
   }
 </script>
 
