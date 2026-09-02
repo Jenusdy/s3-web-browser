@@ -228,3 +228,14 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
             return Response("Upload successful", status=200)
         except Exception as e:  # noqa: BLE001
             return Response(f"Upload failed: {e}", status=500)
+
+    @app.route("/c/<int:connection_id>/delete/buckets/<bucket_name>/<path:path>", methods=["POST"])
+    def delete_file(connection_id: int, bucket_name: str, path: str) -> Response:
+        conn = Connection.query.get_or_404(connection_id)
+        s3_client = boto3.client("s3", **conn.to_boto3_kwargs())
+
+        try:
+            s3_client.delete_object(Bucket=bucket_name, Key=path)
+            return Response("Deleted", status=200)
+        except Exception as e:  # noqa: BLE001
+            return Response(f"Failed to delete: {e}", status=500)
