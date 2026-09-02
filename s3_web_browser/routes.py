@@ -272,12 +272,14 @@ def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
 
             temp_file.seek(0)
             folder_name = path.rstrip("/").split("/")[-1]
-            return send_file(
+            response = send_file(
                 temp_file,
                 mimetype="application/zip",
                 as_attachment=True,
                 download_name=f"{folder_name}.zip"
             )
+            response.set_cookie("download_started", "1", max_age=120, path="/")
+            return response
         except Exception as e:  # noqa: BLE001
             temp_file.close()
             return render_template("error.html", error=f"Error generating ZIP: {e}")
