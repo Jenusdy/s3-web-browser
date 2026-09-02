@@ -236,26 +236,38 @@
     }).then(() => {
       uploadNextFile(files);
     }).catch(err => {
-      alert(`Failed to upload ${file.name}: ${err.message}`);
-      uploadNextFile(files);
+      Swal.fire('Error!', `Failed to upload ${file.name}: ${err.message}`, 'error').then(() => {
+        uploadNextFile(files);
+      });
     });
   }
   
   function deleteFile(connId, bucketName, path) {
-    if (!confirm("Are you sure you want to delete '" + path.split('/').pop() + "'?")) return;
-    
-    if (typeof showLoading === 'function') {
-      showLoading("Deleting file...");
-    }
-    
-    fetch(`/c/${connId}/delete/buckets/${bucketName}/${path}`, {
-      method: 'POST'
-    }).then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      window.location.reload();
-    }).catch(err => {
-      if (typeof hideLoading === 'function') hideLoading();
-      alert(`Failed to delete file: ${err.message}`);
+    const fileName = path.split('/').pop();
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to delete '${fileName}'? This cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (typeof showLoading === 'function') {
+          showLoading("Deleting file...");
+        }
+        
+        fetch(`/c/${connId}/delete/buckets/${bucketName}/${path}`, {
+          method: 'POST'
+        }).then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          window.location.reload();
+        }).catch(err => {
+          if (typeof hideLoading === 'function') hideLoading();
+          Swal.fire('Error!', `Failed to delete file: ${err.message}`, 'error');
+        });
+      }
     });
   }
 </script>
