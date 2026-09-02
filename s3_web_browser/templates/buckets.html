@@ -1,5 +1,13 @@
 {% extends "base.html" %}{% block content %}
-<div class="page-title">Buckets - {{ connection.name }}</div>
+<nav class="breadcrumb" style="margin-bottom: 16px;">
+  <a href="{{ url_for('index') }}" style="display:flex; align-items:center; gap:4px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Connections
+  </a>
+  <span class="sep">/</span>
+  <span class="current">{{ connection.name }}</span>
+</nav>
+<div class="page-title">Buckets</div>
 <div class="page-subtitle">Select a bucket to browse its contents.</div>
 
 {% set bucket_list = buckets | list %}

@@ -9,11 +9,11 @@
   </div>
 </div>
 
-{# ── Breadcrumb ── #}
-<nav class="breadcrumb">
-  <a href="{{ url_for('index') }}">Connections</a>
-  <span class="sep">/</span>
-  <a href="{{ url_for('buckets', connection_id=connection.id) }}">{{ connection.name }}</a>
+<nav class="breadcrumb" style="margin-bottom: 24px;">
+  <a href="{{ url_for('buckets', connection_id=connection.id) }}" style="display:flex; align-items:center; gap:4px; margin-right: 8px;" title="Back to Buckets">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Buckets
+  </a>
   <span class="sep">/</span>
   {% if path %}
     <a href="{{ url_for('view_bucket', connection_id=connection.id, bucket_name=bucket_name) }}">{{ bucket_name }}</a>
