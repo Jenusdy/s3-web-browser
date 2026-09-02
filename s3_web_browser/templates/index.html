@@ -1,4 +1,12 @@
 {% extends "base.html" %}{% block content %}
+
+<div class="banner" style="position: relative; border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; box-shadow: var(--shadow); background: #000;">
+    <img src="{{ url_for('static', filename='banner.jpg') }}" alt="Welcome banner" style="width: 100%; max-height: 250px; object-fit: cover; display: block; opacity: 0.7;">
+    <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);">
+        <h1 style="color: white; font-size: 32px; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.8); margin: 0; letter-spacing: 0.5px;">Welcome to S3 Client Browser</h1>
+    </div>
+</div>
+
 <div class="page-title" style="display: flex; justify-content: space-between; align-items: center;">
     <span>S3 Connections</span>
     <a href="{{ url_for('new_connection') }}" style="font-size: 1rem; background: var(--accent); color: white; padding: 0.5rem 1rem; border-radius: var(--radius); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
