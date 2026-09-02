@@ -2,11 +2,11 @@ import boto3
 import botocore
 from flask import Flask, Response, redirect, render_template, request, url_for
 
+from s3_web_browser.models import Connection, db
 from s3_web_browser.s3 import list_objects, parse_responses
-from s3_web_browser.models import db, Connection
 
 
-def register_routes(app: Flask) -> None:  # noqa:C901
+def register_routes(app: Flask) -> None:  # noqa: C901, PLR0915
     @app.route("/", methods=["GET"])
     def index() -> str:
         connections = Connection.query.all()
@@ -36,7 +36,7 @@ def register_routes(app: Flask) -> None:  # noqa:C901
         return render_template("connection_form.html")
 
     @app.route("/connections/<int:id>/delete", methods=["POST"])
-    def delete_connection(id: int) -> Response:
+    def delete_connection(id: int) -> Response:  # noqa: A002
         conn = Connection.query.get_or_404(id)
         db.session.delete(conn)
         db.session.commit()
@@ -47,7 +47,7 @@ def register_routes(app: Flask) -> None:  # noqa:C901
         conn = Connection.query.get_or_404(connection_id)
         if conn.default_bucket:
             return redirect(url_for("view_bucket", connection_id=connection_id, bucket_name=conn.default_bucket))
-        
+
         try:
             s3 = boto3.resource("s3", **conn.to_boto3_kwargs())
             all_buckets = list(s3.buckets.all())

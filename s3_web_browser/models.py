@@ -1,14 +1,18 @@
+from botocore.client import Config
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from botocore.client import Config
+
 
 class Base(DeclarativeBase):
-    pass
+    """Base model class."""
+
 
 db = SQLAlchemy(model_class=Base)
 
 class Connection(db.Model):
-    __tablename__ = 'connections'
+    """Database model for storing S3 connection credentials."""
+
+    __tablename__ = "connections"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True)
@@ -19,6 +23,7 @@ class Connection(db.Model):
     default_bucket: Mapped[str | None] = mapped_column(default=None)
 
     def to_boto3_kwargs(self) -> dict:
+        """Convert connection properties to boto3 client kwargs."""
         kwargs = {
             "aws_access_key_id": self.access_key_id,
             "aws_secret_access_key": self.secret_access_key,
