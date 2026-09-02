@@ -81,9 +81,6 @@ docker run -it --rm -p 8000:8000 -v ${PWD}/instance:/usr/src/app/instance Jenusd
 | `make clean` | Remove temporary files |
 | `make release VERSION=x.y.z` | Build and push Docker images |
 
-## Related
-
-- [S3 Commander](https://github.com/Jenusdy/s3-commander) — Total Commander-style dual-pane S3 file browser with server-side move/copy.
 
 ## License
 
