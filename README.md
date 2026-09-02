@@ -30,7 +30,9 @@ S3 Web Browser is a Flask-based web application that allows users to browse AWS 
 
 ## Configuration
 
-While AWS credentials are now primarily configured securely through the web UI and saved to a local SQLite database, application settings are configured via environment variables (or a `.env` file):
+Connection credentials (AWS keys, endpoint, region) are **managed securely through the Web UI** and saved to a local SQLite database (`instance/connections.db`).
+
+Application-level settings can still be configured via environment variables:
 
 | Variable | Default | Description |
 |---|---|---|
@@ -39,7 +41,7 @@ While AWS credentials are now primarily configured securely through the web UI a
 | `PAGE_ITEMS` | `300` | Items per page |
 | `SQLALCHEMY_DATABASE_URI` | `sqlite:///connections.db` | Database URI for storing connections (Defaults to `instance/connections.db`) |
 
-*Note: The old `AWS_*` environment variables are deprecated as connection credentials are now managed dynamically from the UI.*
+*Note: The old `.env` file and `AWS_*` environment variables are now completely obsolete and have been removed. The database file is **automatically created** on fresh installs when the app first starts.*
 
 ## Run
 

@@ -10,6 +10,12 @@ def create_app(config_class: str = "config.Config") -> Flask:
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_class)
 
+    # Ensure the instance folder exists for fresh installs
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
     db.init_app(app)
     with app.app_context():
         db.create_all()
