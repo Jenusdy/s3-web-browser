@@ -36,7 +36,7 @@ humanize = "^4.15.0"
 flask-sqlalchemy = "^3.1.1"
 
 [tool.poetry.group.dev.dependencies]
-ruff = ">=0.15.10,<0.17.0"
+ruff = ">=0.15.10,<0.18.0"
 
 [tool.poetry.urls]
 "Tracker" = "https://github.com/romanzdk/s3-web-browser/issues"
